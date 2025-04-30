@@ -1,137 +1,131 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
-import tensorflow as tf
-import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision.transforms as transforms
 import io
 import os
 from contextlib import asynccontextmanager
 
-# Constants
 IMG_SIZE = 28
-NUM_CLASSES = 50  # Match with len(class_names)
-MODEL_PATH = "doodle.h5"            
+MODEL_PATH = "doodle.pth"
 
-# List of class names
 class_names = [
-    'ambulance', 'belt', 'bear', 'bulldozer', 'blueberry', 'airplane', 'bread', 
-    'bat', 'apple', 'bandage', 'beach', 'asparagus', 'blackberry', 'backpack', 
-    'baseball', 'book', 'arm', 'alarm clock', 'broccoli', 'beard', 'boomerang', 
-    'birthday cake', 'bird', 'bottlecap', 'The Eiffel Tower', 'anvil', 'barn', 
-    'banana', 'brain', 'basketball', 'angel', 'ant', 'animal migration', 'axe', 
-    'baseball bat', 'bed', 'bee', 'bench', 'bicycle', 'binoculars', 'bowtie', 
-    'bracelet', 'bridge', 'broom', 'bucket', 'bus', 'bush', 'butterfly', 'cactus', 'cake'
+    "axe", "airplane", "apple", "banana", "baseball", "baseball bat", "birthday cake",
+    "book", "bucket", "bus", "candle", "camera", "car", "cell phone", "cloud",
+    "coffee cup", "crown", "dolphin", "donut", "dumbbell", "envelope", "eye",
+    "eyeglasses", "finger", "fish", "flashlight", "flower", "fork", "golf club",
+    "hammer", "hand", "headphones", "hot air balloon", "hourglass", "ice cream",
+    "key", "knife", "ladder", "leaf", "light bulb", "lightning", "mountain",
+    "mushroom", "octagon", "pencil", "pliers", "screwdriver", "see saw", "star",
+    "sword", "syringe", "tooth", "toothbrush", "traffic light", "t-shirt", "umbrella",
+    "vase", "windmill", "wine glass", "zigzag"
 ]
 
-# Global model variable
-model = None
+# Define transform pipeline
+transform = transforms.Compose([
+    transforms.Grayscale(num_output_channels=1),
+    transforms.Resize((IMG_SIZE, IMG_SIZE)),
+    transforms.ToTensor(),
+])
 
-def create_model():
-    """Create the model architecture to match the training notebook"""
-    return tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(IMG_SIZE, IMG_SIZE, 1)),
+class DoodleClassifier(nn.Module):
+    def __init__(self, num_classes=60):
+        super(DoodleClassifier, self).__init__()
+        self.conv1 = nn.Conv2d(1, 6, kernel_size=5)
+        self.bn1 = nn.BatchNorm2d(6)
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.MaxPooling2D(2),
-        tf.keras.layers.Dropout(0.2),
+        self.conv2 = nn.Conv2d(6, 16, kernel_size=5)
+        self.bn2 = nn.BatchNorm2d(16)
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.MaxPooling2D(2),
-        tf.keras.layers.Dropout(0.3),
-        
-        tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.MaxPooling2D(2),
-        tf.keras.layers.Dropout(0.4),
-        
-        tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(1024, activation='relu'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.Dense(512, activation='relu'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.Dropout(0.5),
-        
-        tf.keras.layers.Dense(len(class_names), activation='softmax')
-    ])
+        self.fc1 = nn.Linear(400, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, num_classes)
+
+    def forward(self, x):
+        x = F.pad(x, (2, 2, 2, 2))
+        x = self.pool1(F.relu(self.bn1(self.conv1(x))))
+        x = self.pool2(F.relu(self.bn2(self.conv2(x))))
+        x = x.view(-1, 400)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+model = None
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def load_model():
-    """Load the model and weights"""
     global model
     try:
         if not os.path.exists(MODEL_PATH):
             raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
         
-        print("Creating model architecture...")
-        model = create_model()
-        
-        print("Compiling model...")
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
-            loss='categorical_crossentropy',
-            metrics=['accuracy']
-        )
-        
-        print(f"Loading weights from {MODEL_PATH}...")
-        model.load_weights(MODEL_PATH)
-        
-        print("Model loaded successfully")
-        # Print model summary for verification
-        model.summary()
+        model = DoodleClassifier(num_classes=len(class_names)).to(device)
+        model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+        model.eval()
+        print(f"Model loaded successfully on {device}")
         return True
-        
     except Exception as e:
         print(f"Error loading model: {str(e)}")
-        model = None
         return False
 
-def preprocess_image(image: Image.Image) -> np.ndarray:
-    """Preprocess image for model prediction"""
-    image = image.convert('L')  # Convert to grayscale
-    image = image.resize((IMG_SIZE, IMG_SIZE))  # Resize
-    img_array = np.array(image, dtype=np.float32)
-    img_array = img_array / 255.0  # Normalize
-    return img_array.reshape((1, IMG_SIZE, IMG_SIZE, 1))
-
-def get_top_predictions(predictions: np.ndarray, k: int = 5):
-    """Get top k predictions with their confidences"""
-    probabilities = tf.nn.softmax(predictions).numpy()[0]
-    top_indices = np.argsort(probabilities)[-k:][::-1]
-    
-    return [{
-        "class": class_names[idx],
-        "confidence": round(float(probabilities[idx]) * 100, 2)
-    } for idx in top_indices]
-
-# Add this import at the top with other imports
-from contextlib import asynccontextmanager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifespan handler for model loading and cleanup"""
-    # Load model on startup
-    try:
-        load_model()
-        yield
-    finally:
-        # Cleanup on shutdown
-        global model
-        model = None
+    print("Loading model...")
+    load_model()
+    yield
+    print("Shutting down...")
 
-app = FastAPI(
-    title="Doodle Recognition API",
-    lifespan=lifespan
-)
+app = FastAPI(title="Doodle Recognition API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React app origin
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+def predict_image(image: Image.Image):
+    """Make a prediction on a single image"""
+    # Convert to RGB to ensure 3 channels
+    image = image.convert('RGB')
+    
+    # Transform and invert the image
+    img_tensor = 1 - transform(image)
+    
+    # Add batch dimension and send to device
+    img_tensor = img_tensor.unsqueeze(0).to(device)
+    
+    with torch.no_grad():
+        outputs = model(img_tensor)
+        probabilities = F.softmax(outputs, dim=1)[0]
+        top5_values, top5_indices = torch.topk(probabilities, 5)
+        
+        # Convert tensors to CPU and numpy for processing
+        values = top5_values.cpu().numpy()
+        indices = top5_indices.cpu().numpy()
+        
+        # Print debug information
+        print("\nPrediction Details:")
+        print("-" * 30)
+        for val, idx in zip(values, indices):
+            print(f"{class_names[idx]:20s}: {val*100:6.2f}%")
+        
+        # Create predictions list
+        predictions = []
+        for val, idx in zip(values, indices):
+            predictions.append({
+                "class": class_names[idx],
+                "confidence": round(float(val) * 100, 2)
+            })
+        
+        return predictions
 
 @app.get("/")
 async def root():
@@ -139,32 +133,27 @@ async def root():
 
 @app.post("/predict/")
 async def predict_doodle(file: UploadFile = File(...)):
-    # Validate model status
     if model is None:
         raise HTTPException(status_code=500, detail="Model not loaded")
     
-    # Validate file type
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image")
-    
     try:
-        # Process image
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
-        processed_image = preprocess_image(image)
         
-        # Make prediction
-        predictions = model(processed_image, training=False)
-        top5_results = get_top_predictions(predictions)
+        # Save debug images
+        image.save("debug_original.png")
         
-        # Return results
+        # Get predictions
+        predictions = predict_image(image)
+        
         return {
-            "prediction": top5_results[0]["class"],
-            "confidence": top5_results[0]["confidence"],
-            "top_5": top5_results
+            "prediction": predictions[0]["class"],
+            "confidence": predictions[0]["confidence"],
+            "top_5": predictions
         }
         
     except Exception as e:
+        print(f"Error during prediction: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
 
 if __name__ == "__main__":
