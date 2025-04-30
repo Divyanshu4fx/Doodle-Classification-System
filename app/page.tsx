@@ -6,7 +6,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-10">
         <h1 className="text-4xl font-bold text-center mb-2 text-slate-800 dark:text-slate-100">Doodle Recognition</h1>
         <p className="text-center mb-8 text-slate-600 dark:text-slate-300">
-          Draw anything on the canvas and we'll recognize it every 5 seconds
+          Draw anything on the canvas and we'll recognize it 
         </p>
         <DoodleCanvas />
       </div>

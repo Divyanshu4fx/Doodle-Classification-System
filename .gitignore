@@ -33,9 +33,21 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Ignore the virtual environment
+backend/venv/
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
