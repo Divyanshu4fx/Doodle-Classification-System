@@ -53,13 +53,7 @@ The model can recognize 60 different doodles including:
 
 Full list of supported classes:
 ```
-airplane, alarm clock, apple, backpack, banana, bicycle, bird, book, 
-bucket, bus, butterfly, camera, car, cat, chair, clock, cloud, coffee cup, 
-computer, cookie, donut, door, dolphin, elephant, eye, fish, flower, 
-guitar, hamburger, hammer, hat, headphones, house, key, lamp, leaf, 
-light bulb, lightning, mountain, mushroom, pants, pencil, pizza, 
-rabbit, rocket, scissors, screwdriver, shirt, shoe, smiley face, 
-snake, snowflake, star, sun, tree, umbrella, wristwatch
+axe, airplane, apple, banana, baseball, baseball bat, birthday cake, book, bucket, bus, candle, camera, car, cell phone, cloud, coffee cup, crown, dolphin, donut, dumbbell, envelope, eye, eyeglasses, finger, fish, flashlight, flower, fork, golf club, hammer, hand, headphones, hot air balloon, hourglass, ice cream, key, knife, ladder, leaf, light bulb, lightning, mountain, mushroom, octagon, pencil, pliers, screwdriver, see saw, star, sword, syringe, tooth, toothbrush, traffic light, t-shirt, umbrella, vase, windmill, wine glass, zigzag
 ```
 
 ## Installation
