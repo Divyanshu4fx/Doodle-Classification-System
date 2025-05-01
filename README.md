@@ -124,13 +124,6 @@ npm run dev
 
 3. Visit [http://localhost:3000](http://localhost:3000)
 
-## Future Improvements
-- [ ] Add more doodle classes
-- [ ] Implement user feedback loop
-- [ ] Add undo/redo functionality
-- [ ] Export drawings
-- [ ] Share predictions on social media
-
 ## Contributing
 1. Fork the repository
 2. Create your feature branch
@@ -152,4 +145,4 @@ This project is part of academic coursework.
 
 ---
 
-*Built with 💻 and ☕ by CSE Students*
+*Built with 💻 and ☕ by [Swastik](https://github.com/Swastik19Nit), [Divyanshu](https://github.com/Divyanshu4fx), and [Debatreya](https://github.com/Debatreya)*
