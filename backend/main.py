@@ -81,7 +81,7 @@ app = FastAPI(title="Doodle Recognition API", lifespan=lifespan)
 origins = [
     "http://localhost",              # Allow local dev frontend
     "http://localhost:3000",        # e.g., React dev server
-    "https://doodle-classification-system.onrender.com/",    # Your production frontend domain
+    "https://doodle-classification-system.onrender.com",    # Your production frontend domain
 ]
 
 app.add_middleware(
