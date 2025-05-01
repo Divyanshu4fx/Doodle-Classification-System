@@ -1,6 +1,10 @@
 # Doodle Recognition Project
 *6th Semester Project - Deep Learning
 
+![](./public/Screenshot%202025-05-01%20063411.png)
+![](./public/Screenshot%202025-05-01%20063623.png
+![](./public/Screenshot%202025-05-01%20063554.png)
+
 ## Overview
 This project implements a real-time doodle recognition system that can identify hand-drawn sketches. Built with Next.js and FastAPI, it provides an intuitive drawing interface and instant predictions using a deep learning model.
 
