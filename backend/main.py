@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 import io
 import os
+import numpy as np
 from contextlib import asynccontextmanager
 
 IMG_SIZE = 28
@@ -23,13 +24,6 @@ class_names = [
     "sword", "syringe", "tooth", "toothbrush", "traffic light", "t-shirt", "umbrella",
     "vase", "windmill", "wine glass", "zigzag"
 ]
-
-# Define transform pipeline
-transform = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1),
-    transforms.Resize((IMG_SIZE, IMG_SIZE)),
-    transforms.ToTensor(),
-])
 
 class DoodleClassifier(nn.Module):
     def __init__(self, num_classes=60):
@@ -92,15 +86,36 @@ app.add_middleware(
 )
 
 def predict_image(image: Image.Image):
-    """Make a prediction on a single image"""
-    # Convert to RGB to ensure 3 channels
-    image = image.convert('RGB')
+    """
+    Process image to match the notebook implementation:
+    - Convert to grayscale
+    - Resize to 28x28
+    - Invert colors (white on black becomes black on white)
+    - Normalize to [0,1]
+    """
+    # Convert to grayscale
+    image = image.convert('L')
     
-    # Transform and invert the image
-    img_tensor = 1 - transform(image)
+    # Resize to 28x28
+    image = image.resize((IMG_SIZE, IMG_SIZE))
     
-    # Add batch dimension and send to device
-    img_tensor = img_tensor.unsqueeze(0).to(device)
+    # Convert to numpy array
+    img_array = np.array(image)
+    
+    # Invert and normalize to [0,1] as in the notebook
+    # In the notebook, you're using black drawings on white background (1-x/255)
+    img_array = 1 - (img_array / 255.0)
+    
+    # Convert to tensor with proper dimensions [1, 1, 28, 28]
+    img_tensor = torch.tensor(img_array.reshape(1, 1, 28, 28), dtype=torch.float32).to(device)
+    
+    # Print debug info about the tensor
+    print(f"Tensor shape: {img_tensor.shape}")
+    print(f"Tensor min value: {img_tensor.min().item()}, max value: {img_tensor.max().item()}")
+    
+    # Save normalized image for debugging
+    debug_img = (img_array * 255).astype(np.uint8)
+    Image.fromarray(debug_img.reshape(28, 28)).save("debug_processed.png")
     
     with torch.no_grad():
         outputs = model(img_tensor)
@@ -140,7 +155,7 @@ async def predict_doodle(file: UploadFile = File(...)):
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
         
-        # Save debug images
+        # Save original image for debugging
         image.save("debug_original.png")
         
         # Get predictions

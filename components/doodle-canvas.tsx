@@ -32,7 +32,7 @@ export default function DoodleCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const contextRef = useRef<CanvasRenderingContext2D | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
-  const [brushSize, setBrushSize] = useState(5)
+  const [brushSize, setBrushSize] = useState(40)
   const [recognizing, setRecognizing] = useState(false)
   const [recognitionResults, setRecognitionResults] = useState<Recognition[]>([])
   const [hasDrawn, setHasDrawn] = useState(false)
@@ -174,7 +174,7 @@ export default function DoodleCanvas() {
       // Convert the top 5 results to our Recognition format
       const results: Recognition[] = data.top_5.map(item => ({
         label: item.class,
-        confidence: item.confidence / 10, // Normalize confidence to 0-1 range
+        confidence: item.confidence / 100, // Normalize confidence to 0-1 range
       }))
 
       setRecognitionResults(results)
@@ -227,7 +227,7 @@ export default function DoodleCanvas() {
 
         <div className="mt-4 flex flex-col sm:flex-row gap-4">
           <div className="flex-1 flex items-center gap-2">
-            <span className="text-sm font-medium min-w-[80px]">Brush size:</span>
+            {/* <span className="text-sm font-medium min-w-[80px]">Brush size:</span>
             <Slider
               value={[brushSize]}
               min={1}
@@ -236,7 +236,7 @@ export default function DoodleCanvas() {
               onValueChange={(value) => setBrushSize(value[0])}
               className="flex-1"
             />
-            <span className="text-sm font-medium w-6">{brushSize}</span>
+            <span className="text-sm font-medium w-6">{brushSize}</span> */}
           </div>
 
           <div className="flex gap-2">
