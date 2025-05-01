@@ -214,7 +214,7 @@ export default function DoodleCanvas() {
             onTouchStart={startDrawing}
             onTouchEnd={finishDrawing}
             onTouchMove={draw}
-            className="w-full h-[400px] border-2 border-slate-300 dark:border-slate-700 rounded-lg bg-white touch-none"
+            className="w-full h-[600px] border-2 border-slate-300 dark:border-slate-700 rounded-lg bg-white touch-none"
           />
           {recognizing && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded-lg">

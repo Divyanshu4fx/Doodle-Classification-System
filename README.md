@@ -220,4 +220,6 @@ This project is part of academic coursework and is available under the MIT Licen
 ---
 *Built with 💻 and ☕ by [Swastik](https://github.com/Swastik19Nit), [Divyanshu](https://github.com/Divyanshu4fx), and [Debatreya](https://github.com/Debatreya)*
 
+[Deployment Link](https://doodle-classification-system.vercel.app/)
+
 *Last Updated: May 2025*
