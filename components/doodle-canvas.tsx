@@ -3,7 +3,6 @@
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
 import { Sparkles, RefreshCw, Trash2 } from "lucide-react"
-import { Slider } from "@/components/ui/slider"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -42,11 +41,11 @@ export default function DoodleCanvas() {
     const canvas = canvasRef.current
     if (!canvas) return
 
+    setBrushSize(40)
     canvas.width = canvas.offsetWidth * 2
     canvas.height = canvas.offsetHeight * 2
     canvas.style.width = `${canvas.offsetWidth}px`
     canvas.style.height = `${canvas.offsetHeight}px`
-
     const context = canvas.getContext("2d")
     if (!context) return
 
