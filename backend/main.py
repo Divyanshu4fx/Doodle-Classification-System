@@ -77,12 +77,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Doodle Recognition API", lifespan=lifespan)
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],          # List of allowed origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],            # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],            # Allow all headers
 )
 
 def predict_image(image: Image.Image):
