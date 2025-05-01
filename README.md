@@ -78,15 +78,28 @@ npm run dev
 
 ## Project Structure
 ```
-doodle/
-├── app/                  # Next.js pages
-│   └── page.tsx         # Main page
-├── backend/             # FastAPI backend
-│   ├── main.py         # API endpoints
-│   └── doodle.pth      # Model weights
-├── components/          # React components
-│   └── doodle-canvas.tsx
-└── public/             # Static assets
+Directory structure:
+└── doodle-recognition-project/
+    ├── README.md
+    ├── app/
+    │   ├── globals.css
+    │   ├── layout.tsx
+    │   └── page.tsx
+    ├── backend/
+    │   ├── doodle.pth
+    │   ├── doodle_recognition.ipynb
+    │   ├── main.py
+    │   └── requirements.txt
+    ├── components/
+    │   ├── doodle-canvas.tsx
+    │   └── ui/
+    │       ├── badge.tsx
+    │       ├── button.tsx
+    │       ├── card.tsx
+    │       └── slider.tsx
+    ├── lib/
+    │   └── utils.ts
+    └── public/
 ```
 
 ## API Endpoints
