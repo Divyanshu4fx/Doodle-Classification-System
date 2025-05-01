@@ -2,7 +2,7 @@
 *6th Semester Project - Deep Learning
 
 ![](./public/Screenshot%202025-05-01%20063411.png)
-![](./public/Screenshot%202025-05-01%20063623.png
+![](./public/Screenshot%202025-05-01%20063623.png)
 ![](./public/Screenshot%202025-05-01%20063554.png)
 
 ## Overview
