@@ -94,7 +94,7 @@ export default function DoodleCanvas() {
         offsetY: touch.clientY - rect.top,
       }
     }
-    
+
     return {
       offsetX: (event as React.MouseEvent).nativeEvent.offsetX,
       offsetY: (event as React.MouseEvent).nativeEvent.offsetY,
@@ -159,11 +159,13 @@ export default function DoodleCanvas() {
       const formData = new FormData()
       formData.append('file', blob, 'drawing.png')
 
+
       // Send to backend
-      const response = await fetch('http://localhost:8000/predict/', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}`, {
         method: 'POST',
         body: formData,
-      })
+      });
+
 
       if (!response.ok) {
         throw new Error(`Failed to recognize doodle: ${response.statusText}`)
@@ -181,7 +183,7 @@ export default function DoodleCanvas() {
       toast.success(`Recognized as ${data.prediction}`)
     } catch (error) {
       console.error('Error recognizing doodle:', error)
-      
+
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         toast.error('Cannot connect to recognition service. Is the backend running?')
       } else {
