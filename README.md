@@ -199,7 +199,7 @@ Tested and working on:
 - Train model on custom datasets
 
 ## About
-This project was developed as part of the 6th semester coursework in Computer Science Engineering, focusing on practical applications of deep learning and full-stack development.
+This project was developed as part of the 8th semester Term Project in Computer Science Engineering, focusing on practical applications of deep learning and full-stack development.
 
 ## License
 This project is part of academic coursework and is available under the MIT License.
@@ -212,7 +212,7 @@ This project is part of academic coursework and is available under the MIT Licen
 - Our course instructors for guidance and support
 
 ---
-*Built with 💻 and ☕ by [Swastik](https://github.com/Swastik19Nit), [Divyanshu](https://github.com/Divyanshu4fx), and [Debatreya](https://github.com/Debatreya)*
+*Built with 💻 and ☕ by [Divyanshu](https://github.com/Divyanshu4fx)*
 
 [Deployment Link](https://doodle-classification-system.vercel.app/)
 
